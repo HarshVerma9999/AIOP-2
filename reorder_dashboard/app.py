@@ -132,7 +132,7 @@ def live_optimise(p, lt, service, h, pc, w, k, shelf, fill, waste, cap):
         # differently on other library versions (e.g. Streamlit Cloud), so the saved result keeps the numbers identical.
         s_, q_ = M["bo_best"]["s"], M["bo_best"]["Q"]
         r = E.simulate(s_, q_, fc, e, **sim_kw(lt, h, pc, w, k, shelf))
-        bo = {**bo, "s": s_, "Q": q_, "cost": r["cost"], "result": r, "feasible": E.feasible(r, f["D_bar"], fill, waste, cap)}
+        bo = {**bo, "s": s_, "Q": q_, "cost": r["cost"], "result": r, "feasible": E.feasible(r, f["D_bar"], fill, waste, cap), "pinned": True}
     return bo, rs
 
 
@@ -200,7 +200,7 @@ def live_scenarios(p):
     fc, e = product_inputs(p); f, _, _ = live_safety(p, tuple(M["lt_probs"]), M["service_level"]); d = f["D_bar"]
     base = dict(lt=tuple(M["lt_probs"]), shelf=M["shelf_life"], pc=M["p_cost"], fill=M["min_fill"])
     rows = []
-    for name, ch in [("Base case", {}), ("Reliable supplier (always 2 days)", dict(lt=(0, 1.0, 0, 0))),
+    for name, ch in [("Base case", {}), ("Reliable supplier (lead time always 2 days)", dict(lt=(0, 1.0, 0, 0))),
                      ("Unreliable supplier (often 3-4 days)", dict(lt=(0.15, 0.30, 0.30, 0.25))), ("Shorter shelf life (3 days)", dict(shelf=3)),
                      ("Longer shelf life (6 days)", dict(shelf=6)), ("Cheap stock-outs (cost 0.75)", dict(pc=0.75)),
                      ("Expensive stock-outs (cost 3.0)", dict(pc=3.0)), ("Higher service target (fill ≥ 98%)", dict(fill=0.98)),
@@ -266,7 +266,7 @@ def page_overview():
     if ai.ok:
         ratio = fo.waste_rate / ai.waste_rate if ai.waste_rate > 0 else float("inf")
         if 1.5 < ratio < 20:
-            waste_txt = f'throws away <b>{ratio:.0f}× less food</b> than the textbook formula'
+            waste_txt = f'throws away <b>{ratio:.{1 if ratio < 3 else 0}f}× less food</b> than the textbook formula'
         elif ratio >= 20:
             waste_txt = f'throws away <b>{pct(ai.waste_rate)}</b> of its stock (textbook formula: {pct(fo.waste_rate)})'
         else:
@@ -362,7 +362,7 @@ def page_demand():
     a, b = st.columns([1.5, 1])
     with a:
         f = fig_base(340, "When sales are lost: demand turned away by empty shelves, by hour")
-        f.add_bar(x=hl.hour, y=hl.lost, marker=dict(color=[T.CORAL if h >= 16 else "#4A5578" for h in hl.hour], cornerradius=4),
+        f.add_bar(x=hl.hour, y=hl.lost, marker=dict(color=[T.CORAL if h >= 16 else "#65739C" for h in hl.hour], cornerradius=4),
                   customdata=np.c_[hl.lost_rate, hl.stockout_rate], hovertemplate="%{x}:00<br>lost demand %{y:.0f} units<br>"
                   "%{customdata[0]:.0%} of that hour's demand lost<br>%{customdata[1]:.0%} of products out of stock<extra></extra>")
         f.update_xaxes(title="hour of day", dtick=2); f.update_yaxes(title="units of demand lost (whole period)"); f.update_layout(showlegend=False); show(f, "lost")
@@ -442,7 +442,7 @@ def page_safety():
         cover = (ltd <= NAIVE[SKU] * 4).mean()
         f.update_xaxes(title="units needed before the delivery arrives"); f.update_yaxes(title="futures"); f.update_layout(showlegend=False, bargap=0.02)
         show(f, "ltd")
-        st.caption(f"The class calculator's reorder point would cover only {cover:.0%} of these futures.")
+        st.caption(f"The class calculator's reorder point would cover {"only " if cover < S.service else ""}{cover:.0%} of these futures.")
     with b:
         dem_part = f_l["sigma_D"] ** 2 * LT_MEAN; lt_part = f_l["D_bar"] ** 2 * LT_SD ** 2; tot = dem_part + lt_part
         f = fig_base(380, "What drives the safety stock")
@@ -518,7 +518,7 @@ def page_optimiser():
         tr = pd.DataFrame(bo["trials"])
         f.add_scatter(x=tr.s, y=tr.Q, mode="markers", name="settings the optimiser tried", text=tr.n,
                       marker=dict(size=8, color="rgba(255,255,255,0.85)", line=dict(color=T.SURFACE, width=1)), hovertemplate="try %{text}<br>s %{x:.2f} · Q %{y:.2f}<extra></extra>")
-        f.add_scatter(x=[bo["s"]], y=[bo["Q"]], mode="markers", name="best policy", marker=dict(symbol="star", size=20, color=T.NEON_AMBER, line=dict(color=T.SURFACE, width=2)),
+        f.add_scatter(x=[bo["s"]], y=[bo["Q"]], mode="markers", name="best policy (notebook run)" if bo.get("pinned") else "best policy", marker=dict(symbol="star", size=20, color=T.NEON_AMBER, line=dict(color=T.SURFACE, width=2)),
                       hovertemplate="best: s %{x:.2f} · Q %{y:.2f}<extra></extra>")
         f.update_xaxes(title="reorder point s"); f.update_yaxes(title="order quantity Q"); show(f, "land")
     with b:
