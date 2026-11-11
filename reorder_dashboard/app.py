@@ -115,6 +115,14 @@ def live_optimise(p, lt, service, h, pc, w, k, shelf, fill, waste, cap):
     lim = dict(min_fill=fill, max_waste=waste, cap_days=cap)
     bo = E.optimise(fc, e, f["D_bar"], sim_kw=sim_kw(lt, h, pc, w, k, shelf), **lim, margin=M["opt_margin"], n_trials=40, seed=SEED)
     rs = E.optimise(fc, e, f["D_bar"], sim_kw=sim_kw(lt, h, pc, w, k, shelf), **lim, margin=M["opt_margin"], n_trials=40, seed=SEED, sampler="random")
+    nb_args = (tuple(M["lt_probs"]), M["service_level"], M["h_cost"], M["p_cost"], M["w_cost"], M["k_cost"], M["shelf_life"],
+               M["min_fill"], M["max_waste"], M["capacity_days"])
+    if p == HERO and np.allclose(np.hstack([lt, (service, h, pc, w, k, shelf, fill, waste, cap)]), np.hstack([nb_args[0], nb_args[1:]])):
+        # Notebook product at notebook settings: show the notebook's own answer. The Gaussian-process search can land a hair
+        # differently on other library versions (e.g. Streamlit Cloud), so the saved result keeps the numbers identical.
+        s_, q_ = M["bo_best"]["s"], M["bo_best"]["Q"]
+        r = E.simulate(s_, q_, fc, e, **sim_kw(lt, h, pc, w, k, shelf))
+        bo = {**bo, "s": s_, "Q": q_, "cost": r["cost"], "result": r, "feasible": E.feasible(r, f["D_bar"], fill, waste, cap)}
     return bo, rs
 
 
