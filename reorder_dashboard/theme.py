@@ -4,7 +4,7 @@ import plotly.io as pio
 
 # ---- tokens ----
 BG, SURFACE, SURFACE_2 = "#070B16", "#0E1528", "#131C36"
-TEXT, TEXT_2, MUTED = "#E8EEF8", "#A3AFC4", "#6B7790"
+TEXT, TEXT_2, MUTED = "#E8EEF8", "#A3AFC4", "#8590A8"   # all pass 4.5:1 contrast on the cards
 NEON_TEAL, NEON_AMBER, CRIT = "#2EE6C5", "#FFB547", "#FF5C7A"     # UI glow accents (not data series)
 # Data series: validated for the dark surface (lightness band, chroma, colour-blind separation, contrast all PASS)
 SERIES = ["#08AA90", "#C48308", "#8E7EF0", "#EA587A", "#3E95F0", "#78A301"]
@@ -29,8 +29,9 @@ html, body, .stApp, [data-testid="stMarkdownContainer"], .stApp p, .stApp li, .s
   background-size: 48px 48px; mask-image: radial-gradient(ellipse at top, black 30%, transparent 75%); }}
 #MainMenu, footer, [data-testid="stDecoration"] {{ visibility:hidden; height:0; }}
 [data-testid="stAppDeployButton"], [data-testid="stToolbarActions"] {{ display:none !important; }}
-header[data-testid="stHeader"] {{ background:transparent; }}
-.block-container {{ padding-top:1.4rem; padding-bottom:3rem; max-width:1480px; }}
+header[data-testid="stHeader"] {{ background:rgba(7,11,22,0.82); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+  border-bottom:1px solid rgba(46,230,197,0.12); }}
+.block-container {{ padding-top:4.4rem; padding-bottom:3rem; max-width:1480px; }}
 h1,h2,h3,h4 {{ font-family:'Space Grotesk',sans-serif !important; letter-spacing:-0.01em; color:{TEXT}; }}
 
 /* sidebar = control panel */
@@ -98,6 +99,15 @@ h1,h2,h3,h4 {{ font-family:'Space Grotesk',sans-serif !important; letter-spacing
 .stButton > button, .stDownloadButton > button {{ border-radius:12px; border:1px solid rgba(46,230,197,0.45); background:rgba(46,230,197,0.08);
   color:{TEXT}; font-family:'Space Grotesk',sans-serif; font-weight:600; }}
 .stButton > button:hover, .stDownloadButton > button:hover {{ border-color:{NEON_TEAL}; box-shadow:0 0 18px rgba(46,230,197,0.25); color:#fff; }}
+.tip {{ cursor:help; color:{NEON_TEAL}; font-size:11px; letter-spacing:0; }}
+.impact {{ font-family:'Space Grotesk',sans-serif; font-size:19px; line-height:1.45; color:{TEXT}; padding:16px 20px; border-radius:16px;
+  border:1px solid rgba(46,230,197,0.30); background:linear-gradient(120deg, rgba(46,230,197,0.10), rgba(142,126,240,0.08)); margin:14px 0 4px; }}
+.impact b {{ color:{NEON_TEAL}; }}
+.method {{ text-align:left; }}
+.method .big {{ font-family:'JetBrains Mono',monospace; font-size:26px; font-weight:700; color:{TEXT}; margin-top:4px; }}
+.check-row {{ display:flex; gap:10px; align-items:baseline; padding:5px 0; border-bottom:1px solid rgba(255,255,255,0.05); font-size:13.5px; }}
+.check-row .ok {{ color:{NEON_TEAL}; font-family:'JetBrains Mono',monospace; }}
+.check-row .d {{ color:{MUTED}; font-family:'JetBrains Mono',monospace; font-size:12px; margin-left:auto; text-align:right; }}
 .foot {{ color:{MUTED}; font-size:12px; margin-top:28px; border-top:1px solid rgba(255,255,255,0.06); padding-top:12px; }}
 </style>
 """
@@ -119,9 +129,10 @@ pio.templates.default = "midnight"
 
 
 # ---- components ----
-def kpi(label, value, sub="", accent=NEON_TEAL, chip=None):
+def kpi(label, value, sub="", accent=NEON_TEAL, chip=None, tip=None):
     chip_html = f'<div style="margin-top:10px">{chip}</div>' if chip else ""
-    return (f'<div class="glass" style="--accent:{accent}"><div class="kpi-label">{label}</div>'
+    tip_html = f' <span class="tip" title="{tip}">ⓘ</span>' if tip else ""
+    return (f'<div class="glass" style="--accent:{accent}"><div class="kpi-label">{label}{tip_html}</div>'
             f'<div class="kpi-value">{value}</div><div class="kpi-sub">{sub}</div>{chip_html}</div>')
 
 

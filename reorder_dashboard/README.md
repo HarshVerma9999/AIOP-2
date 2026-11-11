@@ -15,17 +15,16 @@ Then open http://localhost:8501. Run the command from inside this folder, so the
 
 | Page | What it shows |
 |---|---|
-| Command deck | Headline results and the four policies compared |
-| Demand intelligence | Demand hidden by empty shelves, stock-out patterns, forecasting models |
-| Safety stock lab | Formula vs Monte Carlo, live |
-| Optimiser | Bayesian optimisation, live |
-| Scenario lab | How the best decision moves under business conditions |
-| Live replay | The final week, re-optimised day by day |
-| Replenishment plan | All 73 products, with a CSV download |
-| Data integrity | The notebook's 44 checks |
-| About | Method and assumptions |
+| Overview | The headline result for the chosen product: cost, waste, customers served, and a breakdown of why the AI policy wins |
+| Demand | Demand hidden by empty shelves, when sales are lost (by hour), forecasting models and the forecast's 80% range |
+| Safety stock | Formula vs Monte Carlo (live), what drives the uncertainty, a risk grid, and which products the formula under-protects |
+| Optimiser | Bayesian optimisation (live), the cost of every policy, smart vs blind search, and 4 weeks of shelf stock (sawtooth) |
+| Scenarios & replay | How the best decision moves under business conditions; the final week replayed day by day |
+| Plan | All 73 products, with a CSV download |
+| About & checks | Method, glossary, assumptions, and the notebook's 44 data checks |
 
-The **control panel** on the left changes the supplier lead time, service level, costs, shelf life and limits. The live pages recompute using the same engine as the notebook. That takes about a second for safety stock, and 3–8 seconds for a new optimisation.
+Only the open page is computed, so pages load quickly. The **control panel** (product, supplier lead time, service level, costs, shelf life,
+limits) applies to every page. Safety stock updates in about a second; a new optimisation takes a few seconds.
 
 ## Files
 

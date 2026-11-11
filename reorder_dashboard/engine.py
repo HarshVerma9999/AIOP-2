@@ -68,7 +68,9 @@ def simulate(s, Q, fc, e, *, lt_probs, shelf, p_cost, h_cost, w_cost, k_cost, n_
             tot["orders"] += place.sum(); tot["served"] += sold.sum(); tot["demand"] += dem[:, d].sum()
             tot["received"] += arriving.sum(); peak = np.maximum(peak, on_hand_morning)
     n = n_paths * (days - warm)
+    parts = dict(holding=h_cost * tot["hold"] / n, lost_sales=p_cost * tot["lost"] / n, waste=w_cost * tot["waste"] / n, ordering=k_cost * tot["orders"] / n)
     return dict(cost=(h_cost * tot["hold"] + p_cost * tot["lost"] + w_cost * tot["waste"] + k_cost * tot["orders"]) / n,
+                cost_parts=parts,
                 fill_rate=tot["served"] / tot["demand"], waste_rate=tot["waste"] / max(tot["received"], 1e-9),
                 peak_stock=float(np.percentile(peak, 95)), orders_per_week=7 * tot["orders"] / n)
 
@@ -107,3 +109,28 @@ def optimise(fc, e, d_bar, *, sim_kw, min_fill, max_waste, cap_days, margin, n_t
     trials = [{**t.user_attrs["r"], "n": t.number + 1, "s": t.params["s"], "Q": t.params["Q"],
                "feasible": feasible(t.user_attrs["r"], d_bar, *nominal)} for t in study.trials]
     return dict(s=best.params["s"], Q=best.params["Q"], cost=best.value, feasible=is_ok, result=best.user_attrs["r"], trials=trials)
+
+
+def trajectory(s, Q, fc, e, *, lt_probs, shelf, days=28, warm=14, seed=11):
+    """One example future, day by day, under the (s, Q) rule: stock on the shelf, deliveries, empty-shelf and spoiled units."""
+    g = np.random.default_rng(seed)
+    fc = np.asarray(fc, float); total = warm + days
+    dem = np.maximum(fc[np.arange(total) % len(fc)] + g.choice(e, total), 0.0)
+    lead = g.choice(LT_VALUES, total, p=lt_probs)
+    stock = np.zeros(shelf); stock[0] = s + Q
+    pipe = np.zeros(total + LT_VALUES.max() + 1)
+    rows = []
+    for d in range(total):
+        arriving = pipe[d]; stock[0] += arriving
+        morning = stock.sum(); need = dem[d]; sold = 0.0
+        for a in range(shelf - 1, -1, -1):
+            take = min(stock[a], need); stock[a] -= take; need -= take; sold += take
+        expired = stock[-1]; stock[1:] = stock[:-1].copy(); stock[0] = 0
+        evening = stock.sum(); position = evening + pipe[d + 1:].sum()
+        order = position <= s
+        if order:
+            pipe[d + lead[d]] += Q
+        if d >= warm:
+            rows.append(dict(day=d - warm + 1, morning=morning, evening=evening, demand=dem[d], sold=sold, lost=need,
+                             spoiled=expired, delivered=arriving, ordered=Q if order else 0.0))
+    return rows
