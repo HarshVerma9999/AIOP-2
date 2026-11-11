@@ -1,0 +1,74 @@
+{
+  "student_id": "as25dxb024",
+  "seed": 3188663453,
+  "store": 308,
+  "city": 0,
+  "hero": 201,
+  "n_products": 73,
+  "pool_stores": 26,
+  "pool_series": 2499,
+  "pool_rows": 242403,
+  "history": [
+    "2024-03-28",
+    "2024-06-25"
+  ],
+  "new_week": [
+    "2024-06-26",
+    "2024-07-02"
+  ],
+  "lt_values": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "lt_probs": [
+    0.2,
+    0.5,
+    0.25,
+    0.05
+  ],
+  "lt_mean": 2.15,
+  "lt_sd": 0.7921489758877429,
+  "service_level": 0.95,
+  "h_cost": 0.03,
+  "p_cost": 1.5,
+  "w_cost": 1.0,
+  "k_cost": 0.5,
+  "shelf_life": 4,
+  "min_fill": 0.95,
+  "max_waste": 0.05,
+  "capacity_days": 6,
+  "opt_margin": 0.0025,
+  "best_model": "Gradient Boosting (ML)",
+  "deploy_model": "Gradient Boosting (ML)",
+  "understatement": 0.18814998466948807,
+  "imputed_share": 0.04806458665940603,
+  "hero_formula": {
+    "D_bar": 1.1418505503641603,
+    "sigma_D": 0.4649569251424883,
+    "SS": 1.863080008600359,
+    "ROP": 4.318058691883303
+  },
+  "hero_mc": {
+    "SS": 2.086958117505621,
+    "ROP": 4.539613219308198
+  },
+  "class_rop_hero": 3.4503092783505154,
+  "naive_hero": 0.8625773195876288,
+  "eoq": 6.169415289323509,
+  "q_textbook": 4.567402201456641,
+  "bo_best": {
+    "s": 3.1070576007514177,
+    "Q": 1.9761422357247052,
+    "cost": 0.4598764829104919
+  },
+  "grid_best": [
+    0.4619567023020412,
+    3.2791605548919476,
+    1.9689602438971738
+  ],
+  "feasible_share": 0.020625,
+  "audit_pass": 44,
+  "audit_total": 44
+}

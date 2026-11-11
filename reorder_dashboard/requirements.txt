@@ -1,0 +1,11 @@
+# CPU-only PyTorch (needed by the Bayesian optimiser) keeps cloud installs small
+--extra-index-url https://download.pytorch.org/whl/cpu
+streamlit>=1.50
+plotly>=5.19
+pandas>=2.2
+numpy>=1.26
+scipy>=1.11
+optuna>=5.0,<7
+torch
+pyarrow>=14
+greenlet
