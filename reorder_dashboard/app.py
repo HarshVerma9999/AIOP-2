@@ -442,7 +442,7 @@ def page_safety():
         cover = (ltd <= NAIVE[SKU] * 4).mean()
         f.update_xaxes(title="units needed before the delivery arrives"); f.update_yaxes(title="futures"); f.update_layout(showlegend=False, bargap=0.02)
         show(f, "ltd")
-        st.caption(f"The class calculator's reorder point would cover {"only " if cover < S.service else ""}{cover:.0%} of these futures.")
+        st.caption(f"The class calculator's reorder point would cover {'only ' if cover < S.service else ''}{cover:.0%} of these futures.")
     with b:
         dem_part = f_l["sigma_D"] ** 2 * LT_MEAN; lt_part = f_l["D_bar"] ** 2 * LT_SD ** 2; tot = dem_part + lt_part
         f = fig_base(380, "What drives the safety stock")
