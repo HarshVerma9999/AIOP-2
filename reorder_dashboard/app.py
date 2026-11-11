@@ -1,6 +1,6 @@
 """Inventory Control Room: Streamlit dashboard for the AI-enhanced reorder-point project (AI in Operations, slide 35).
 Run:  streamlit run app.py      (multipage: only the open page is computed)"""
-import json, math
+import hashlib, json, math
 from pathlib import Path
 
 import numpy as np
@@ -15,6 +15,16 @@ import theme as T
 st.set_page_config(page_title="Inventory Control Room · Store 308", page_icon="📦", layout="wide", initial_sidebar_state="auto")
 st.markdown(T.CSS, unsafe_allow_html=True)
 DATA = Path(__file__).parent / "data"
+
+
+@st.cache_resource(show_spinner=False)
+def _clear_cache_for(code_hash):
+    """Runs once per code version: a redeploy keeps cached results of functions whose own code didn't change, so drop them."""
+    st.cache_data.clear()
+    return code_hash
+
+
+_clear_cache_for(hashlib.sha1(b"".join((Path(__file__).parent / f).read_bytes() for f in ("app.py", "engine.py", "data/meta.json"))).hexdigest())
 
 
 # =============================== data ===============================
